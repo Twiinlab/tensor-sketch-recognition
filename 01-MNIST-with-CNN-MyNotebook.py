@@ -3,7 +3,7 @@
 
 # # MNIST with CNN
 
-# In[57]:
+# In[166]:
 
 
 import os
@@ -15,23 +15,11 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 
-# In[58]:
-
-
-from tensorflow.examples.tutorials.mnist import input_data
-
-
-# In[59]:
-
-
-mnist = input_data.read_data_sets("SKETCH_data/",one_hot=True)
-
-
 # ### Helper Functions
 
 # Function to help intialize random weights for fully connected or convolutional layers, we leave the shape attribute as a parameter for this.
 
-# In[60]:
+# In[167]:
 
 
 def init_weights(shape):
@@ -41,7 +29,7 @@ def init_weights(shape):
 
 # Same as init_weights, but for the biases
 
-# In[61]:
+# In[168]:
 
 
 def init_bias(shape):
@@ -67,7 +55,7 @@ def init_bias(shape):
 #    vector.
 # 
 
-# In[62]:
+# In[169]:
 
 
 def conv2d(x, W):
@@ -87,7 +75,7 @@ def conv2d(x, W):
 #         window for each dimension of the input tensor.
 #       padding: A string, either `'VALID'` or `'SAME'`. 
 
-# In[63]:
+# In[170]:
 
 
 def max_pool_2by2(x):
@@ -97,7 +85,7 @@ def max_pool_2by2(x):
 
 # Using the conv2d function, we'll return an actual convolutional layer here that uses an ReLu activation.
 
-# In[64]:
+# In[171]:
 
 
 def convolutional_layer(input_x, shape):
@@ -108,7 +96,7 @@ def convolutional_layer(input_x, shape):
 
 # This is a normal fully connected layer
 
-# In[65]:
+# In[172]:
 
 
 def normal_full_layer(input_layer, size):
@@ -126,7 +114,7 @@ def normal_full_layer(input_layer, size):
 
 
 
-# In[66]:
+# In[173]:
 
 
 def one_hot_encode(pos):
@@ -138,7 +126,7 @@ def one_hot_encode(pos):
     return out
 
 
-# In[67]:
+# In[174]:
 
 
 #duck smile car pencil star burger cookie rabbit moon icecream
@@ -147,7 +135,7 @@ for i in range(len(fileList)):
     print('{} lenght {}'.format(fileList[i], len(np.load('./SKETCH_data/'+fileList[i]+'.npy'))))
 
 
-# In[68]:
+# In[175]:
 
 
 # images = []
@@ -158,7 +146,7 @@ for i in range(len(fileList)):
             
 
 
-# In[69]:
+# In[176]:
 
 
 # np.concatenate((images,np.array(np.load('./SKETCH_data/'+ fileList[1] +'.npy')[pos_begin:pos_end])), axis=0)
@@ -170,13 +158,17 @@ for i in range(len(fileList)):
 
 
 
-# In[ ]:
+# In[177]:
 
 
+def display(img, predict, label):
+    plt.title('Predict %s. Label: %d' % (predict, label))
+    plt.imshow(img.reshape((28,28)), cmap=plt.cm.gray_r)
+    plt.show()
+# display(test_x[0], 0, 0)
 
 
-
-# In[70]:
+# In[178]:
 
 
 class SketchImageHelper():
@@ -188,7 +180,7 @@ class SketchImageHelper():
         self.batch_x = None
         self.batch_y = None
         
-        self.pos_begin = 10000
+        self.pos_begin = 1000
         self.pos_end = 110000
         
         self.images = []
@@ -199,44 +191,29 @@ class SketchImageHelper():
     def set_up_images(self):
         
         print("Setting Up Batch Images and Labels")
-        # sampleSize = self.pos_end - self.pos_begin
-        # self.batch_x = np.concatenate((np.array(np.load('./SKETCH_data/duck.npy')[self.pos_begin:self.pos_end]),np.array(np.load('./SKETCH_data/smile.npy')[self.pos_begin:self.pos_end]),np.array(np.load('./SKETCH_data/car.npy')[self.pos_begin:self.pos_end]),np.array(np.load('./SKETCH_data/pencil.npy')[self.pos_begin:self.pos_end]),np.array(np.load('./SKETCH_data/star.npy')[self.pos_begin:self.pos_end]),np.array(np.load('./SKETCH_data/burger.npy')[self.pos_begin:self.pos_end]),np.array(np.load('./SKETCH_data/cookie.npy')[self.pos_begin:self.pos_end]),np.array(np.load('./SKETCH_data/rabbit.npy')[self.pos_begin:self.pos_end]),np.array(np.load('./SKETCH_data/moon.npy')[self.pos_begin:self.pos_end]),np.array(np.load('./SKETCH_data/icecream.npy')[self.pos_begin:self.pos_end])), axis=0)
-        # self.batch_y = np.concatenate((np.full((sampleSize,10), one_hot_encode(0)), np.full((sampleSize,10), one_hot_encode(1)), np.full((sampleSize,10), one_hot_encode(2)), np.full((sampleSize,10), one_hot_encode(3)),
-        #                                np.full((sampleSize,10), one_hot_encode(4)), np.full((sampleSize,10), one_hot_encode(5)), np.full((sampleSize,10), one_hot_encode(6)), np.full((sampleSize,10), one_hot_encode(7)),
-        #                                np.full((sampleSize,10), one_hot_encode(8)), np.full((sampleSize,10), one_hot_encode(9))), axis=0)
         sampleSize = self.pos_end - self.pos_begin
         i = 0
         for i in range(len(self.fileList)):
-            if i==0:
-                self.images = np.array(np.load('./SKETCH_data/'+ self.fileList[i] +'.npy')[self.pos_begin:self.pos_end])
-                self.labels = np.full((sampleSize,10), one_hot_encode(i))
-            else:
-                self.images = np.concatenate((self.images,np.array(np.load('./SKETCH_data/'+ self.fileList[i] +'.npy')[self.pos_begin:self.pos_end])), axis=0)
-                self.labels = np.concatenate((self.labels,np.full((sampleSize,10), one_hot_encode(i))), axis=0)
+            partialImages = np.array(np.load('./SKETCH_data/'+ self.fileList[i] +'.npy')[self.pos_begin:self.pos_end])
+            self.images.append( partialImages / 255)
+            self.labels.append(np.full((sampleSize,10), one_hot_encode(i)))
 
-            # self.batch.append({'x': xdata ,'y': ydata})
-            # self.batch[i] = np.array( (x,y), dtype=[('x',float),('y', np.int32, (10,))])
-    
         print('batch lenght {}'.format(len(self.images)))
         print('batch lenght {}'.format(len(self.labels)))
         
         
-    def next_batch(self, batch_size):
-        # x = self.batch_x[self.i:self.i+batch_size]
-        # y = self.batch_y[self.i:self.i+batch_size]
-        # self.i = (self.i + batch_size)
-        # print(' {}'.format(self.i), end='')                             
+    def next_batch(self, batch_size):                          
         x = []
         y = []
         partial_batch = batch_size // len(self.fileList)
         i = 0
         for i in range(len(self.fileList)):
             if i==0:
-                x = np.array(self.images[self.position:partial_batch])
-                y = np.array(self.labels[self.position:partial_batch])
+                x = np.array((self.images[i])[self.position:self.position+partial_batch])
+                y = np.array((self.labels[i])[self.position:self.position+partial_batch])
             else:
-                x = np.concatenate((x,np.array(self.images)[self.position:partial_batch]), axis=0)
-                y = np.concatenate((y,np.array(self.labels)[self.position:partial_batch]), axis=0)  
+                x = np.concatenate((x,np.array((self.images[i])[self.position:self.position+partial_batch])), axis=0)
+                y = np.concatenate((y,np.array((self.labels[i])[self.position:self.position+partial_batch])), axis=0)  
 
         
         self.position = (self.position + partial_batch)
@@ -244,23 +221,68 @@ class SketchImageHelper():
         return x, y
 
 
-# In[71]:
+# In[179]:
 
 
-# sih = SketchImageHelper()
-# sih.set_up_images()
-# lot = sih.next_batch(500)
+# sih = SketchImageHelper()
+# sih.set_up_images()
+# lotx, loty = sih.next_batch(500)
+
+
+# In[180]:
+
+
+# print(len(sih.images[0]))
+# display(sih.images[0][51], 0, 0)
+
+
+# In[181]:
+
+
+# len(lotx)
+# display(lotx[4], 0, 0)
+
+
+# In[182]:
+
+
+# lotx, loty = sih.next_batch(500)
+
+
+# In[183]:
+
+
+# len(lotx)
+# display(lotx[4], 0, 0)
+
+
+# In[184]:
+
+
+# lotx, loty = sih.next_batch(500)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # ### Placeholders
 
-# In[72]:
+# In[185]:
 
 
 x = tf.placeholder(tf.float32,shape=[None,784])
 
 
-# In[73]:
+# In[186]:
 
 
 y_true = tf.placeholder(tf.float32,shape=[None,10])
@@ -268,13 +290,13 @@ y_true = tf.placeholder(tf.float32,shape=[None,10])
 
 # ### Layers
 
-# In[74]:
+# In[187]:
 
 
 x_image = tf.reshape(x,[-1,28,28,1])
 
 
-# In[75]:
+# In[188]:
 
 
 # Using a 6by6 filter here, used 5by5 in video, you can play around with the filter size
@@ -285,7 +307,7 @@ convo_1 = convolutional_layer(x_image,shape=[6,6,1,32])
 convo_1_pooling = max_pool_2by2(convo_1)
 
 
-# In[76]:
+# In[189]:
 
 
 # Using a 6by6 filter here, used 5by5 in video, you can play around with the filter size
@@ -295,7 +317,7 @@ convo_2 = convolutional_layer(convo_1_pooling,shape=[6,6,32,64])
 convo_2_pooling = max_pool_2by2(convo_2)
 
 
-# In[77]:
+# In[190]:
 
 
 # Why 7 by 7 image? Because we did 2 pooling layers, so (28/2)/2 = 7
@@ -304,7 +326,7 @@ convo_2_flat = tf.reshape(convo_2_pooling,[-1,7*7*64])
 full_layer_one = tf.nn.relu(normal_full_layer(convo_2_flat,1024))
 
 
-# In[78]:
+# In[191]:
 
 
 # NOTE THE PLACEHOLDER HERE!
@@ -312,7 +334,7 @@ hold_prob = tf.placeholder(tf.float32)
 full_one_dropout = tf.nn.dropout(full_layer_one,keep_prob=hold_prob)
 
 
-# In[79]:
+# In[192]:
 
 
 y_pred = normal_full_layer(full_one_dropout,10)
@@ -320,7 +342,7 @@ y_pred = normal_full_layer(full_one_dropout,10)
 
 # ### Loss Function
 
-# In[80]:
+# In[193]:
 
 
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true,logits=y_pred))
@@ -328,16 +350,16 @@ cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_
 
 # ### Optimizer
 
-# In[81]:
+# In[194]:
 
 
-optimizer = tf.train.AdamOptimizer(learning_rate=0.0001)
+optimizer = tf.train.AdamOptimizer(learning_rate=0.0001) # 0.0001
 train = optimizer.minimize(cross_entropy)
 
 
 # ### Intialize Variables
 
-# In[82]:
+# In[195]:
 
 
 init = tf.global_variables_initializer()
@@ -345,7 +367,7 @@ init = tf.global_variables_initializer()
 
 # ### Session
 
-# In[83]:
+# In[196]:
 
 
 #duck smile car pencil star burger cookie rabbit moon icecream
@@ -362,49 +384,97 @@ print('test_x lenght {}'.format(len(test_x)))
 print('test_y lenght {}'.format(len(test_y)))
 
 
-# In[ ]:
+# In[120]:
 
 
+# sih = SketchImageHelper()
+# sih.set_up_images()
+
+# with tf.Session() as sess:
+    
+#     sess.run(init)
+#     batch_x , batch_y = sih.next_batch(500)
+    
+#     print(batch_x[0])
+#     print(batch_y[0])
 
 
+# In[200]:
 
-# In[ ]:
 
-
-steps = 150
-
-# self.pos_begin = 5000
-# self.pos_end = 15000
 sih = SketchImageHelper()
 sih.set_up_images()
 
-with tf.Session() as sess:
-    
-    print('INIT')
-    sess.run(init)
-    
-    for j in range(steps):
-        # print('.', end='')
-        batch = sih.next_batch(500)
-        sess.run(train,feed_dict={x:batch[0],y_true:batch[1],hold_prob:0.5})
+sess = tf.InteractiveSession()
 
-        # PRINT OUT A MESSAGE EVERY 100 STEPS
-        if j%50 == 0:
-            print('\n')
-            print('step {}'.format(j))
-            print('Accuracy is:')
-            # Test the Train Model
-            matches = tf.equal(tf.argmax(y_pred,1),tf.argmax(y_true,1))
 
-            acc = tf.reduce_mean(tf.cast(matches,tf.float32))
+# In[201]:
 
-            print(sess.run(acc,feed_dict={x:test_x,y_true:test_y,hold_prob:1.0}))
-            
-    
-    print('\n')
-    print('FINAL Accuracy is:')
-    print(sess.run(acc,feed_dict={x:test_x,y_true:test_y,hold_prob:1.0}))
-    print('\n')
+
+steps = 100
+
+print('INIT')
+sess.run(init)
+
+for j in range(steps):
+    # print('.', end='')
+    batch_x , batch_y = sih.next_batch(500)
+    sess.run(train,feed_dict={x:batch_x,y_true:batch_y,hold_prob:0.5})
+
+    # PRINT OUT A MESSAGE EVERY 100 STEPS
+    if j%50 == 0:
+        print('\n')
+        print('step {}'.format(j))
+        print('Accuracy is:')
+        # Test the Train Model
+        matches = tf.equal(tf.argmax(y_pred,1),tf.argmax(y_true,1))
+
+        acc = tf.reduce_mean(tf.cast(matches,tf.float32))
+
+        print(sess.run(acc,feed_dict={x:test_x,y_true:test_y,hold_prob:1.0}))
+
+
+print('\n')
+print('FINAL Accuracy is:')
+print(sess.run(acc,feed_dict={x:test_x,y_true:test_y,hold_prob:1.0}))
+print('\n')
+
+
+# In[230]:
+
+
+evalImage = (np.load('./SKETCH_data/duck.npy')[501] / 255)
+print(y_pred)
+
+
+# In[236]:
+
+
+# make a prediction
+# y = tf.nn.softmax(tf.matmul(x,W) + b)
+evalImage = (np.load('./SKETCH_data/duck.npy')[501] / 255)
+
+feed_dict = {x: evalImage , y_true: np.zeros((1, 10)) }
+
+classification = sess.run(y_pred, feed_dict)
+
+
+# In[202]:
+
+
+display(evalImage, 0, 0)
+
+
+# In[203]:
+
+
+print(classification)
+
+
+# In[ ]:
+
+
+sess.close()
 
 
 # ## Great Job!

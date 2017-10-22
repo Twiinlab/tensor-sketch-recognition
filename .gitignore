@@ -99,3 +99,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# custom ignore files
+
+SKETCH_data/ 
