@@ -3,7 +3,7 @@
 
 # # MNIST with CNN
 
-# In[166]:
+# In[1]:
 
 
 import os
@@ -15,11 +15,19 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 
+# ## Init variables
+
+# In[110]:
+
+
+savefile = "./STORED_model/my_trained_model.json"
+
+
 # ### Helper Functions
 
 # Function to help intialize random weights for fully connected or convolutional layers, we leave the shape attribute as a parameter for this.
 
-# In[167]:
+# In[2]:
 
 
 def init_weights(shape):
@@ -29,7 +37,7 @@ def init_weights(shape):
 
 # Same as init_weights, but for the biases
 
-# In[168]:
+# In[3]:
 
 
 def init_bias(shape):
@@ -55,7 +63,7 @@ def init_bias(shape):
 #    vector.
 # 
 
-# In[169]:
+# In[4]:
 
 
 def conv2d(x, W):
@@ -75,7 +83,7 @@ def conv2d(x, W):
 #         window for each dimension of the input tensor.
 #       padding: A string, either `'VALID'` or `'SAME'`. 
 
-# In[170]:
+# In[5]:
 
 
 def max_pool_2by2(x):
@@ -85,7 +93,7 @@ def max_pool_2by2(x):
 
 # Using the conv2d function, we'll return an actual convolutional layer here that uses an ReLu activation.
 
-# In[171]:
+# In[6]:
 
 
 def convolutional_layer(input_x, shape):
@@ -96,7 +104,7 @@ def convolutional_layer(input_x, shape):
 
 # This is a normal fully connected layer
 
-# In[172]:
+# In[7]:
 
 
 def normal_full_layer(input_layer, size):
@@ -114,7 +122,7 @@ def normal_full_layer(input_layer, size):
 
 
 
-# In[173]:
+# In[8]:
 
 
 def one_hot_encode(pos):
@@ -126,7 +134,7 @@ def one_hot_encode(pos):
     return out
 
 
-# In[174]:
+# In[9]:
 
 
 #duck smile car pencil star burger cookie rabbit moon icecream
@@ -135,7 +143,7 @@ for i in range(len(fileList)):
     print('{} lenght {}'.format(fileList[i], len(np.load('./SKETCH_data/'+fileList[i]+'.npy'))))
 
 
-# In[175]:
+# In[10]:
 
 
 # images = []
@@ -146,7 +154,7 @@ for i in range(len(fileList)):
             
 
 
-# In[176]:
+# In[11]:
 
 
 # np.concatenate((images,np.array(np.load('./SKETCH_data/'+ fileList[1] +'.npy')[pos_begin:pos_end])), axis=0)
@@ -158,17 +166,18 @@ for i in range(len(fileList)):
 
 
 
-# In[177]:
+# In[112]:
 
 
-def display(img, predict, label):
-    plt.title('Predict %s. Label: %d' % (predict, label))
+def display(img, label, predict):
+    plt.title('Real %s. Predict: %s - %s' % (label, predict, "Correct" if (label==predict) else "No correct" ))
     plt.imshow(img.reshape((28,28)), cmap=plt.cm.gray_r)
     plt.show()
-# display(test_x[0], 0, 0)
+    
+# usage: display(test_x[0], 0, 0)
 
 
-# In[178]:
+# In[13]:
 
 
 class SketchImageHelper():
@@ -221,7 +230,7 @@ class SketchImageHelper():
         return x, y
 
 
-# In[179]:
+# In[14]:
 
 
 # sih = SketchImageHelper()
@@ -229,34 +238,34 @@ class SketchImageHelper():
 # lotx, loty = sih.next_batch(500)
 
 
-# In[180]:
+# In[15]:
 
 
 # print(len(sih.images[0]))
 # display(sih.images[0][51], 0, 0)
 
 
-# In[181]:
+# In[16]:
 
 
 # len(lotx)
 # display(lotx[4], 0, 0)
 
 
-# In[182]:
+# In[17]:
 
 
 # lotx, loty = sih.next_batch(500)
 
 
-# In[183]:
+# In[18]:
 
 
 # len(lotx)
 # display(lotx[4], 0, 0)
 
 
-# In[184]:
+# In[19]:
 
 
 # lotx, loty = sih.next_batch(500)
@@ -276,13 +285,13 @@ class SketchImageHelper():
 
 # ### Placeholders
 
-# In[185]:
+# In[20]:
 
 
 x = tf.placeholder(tf.float32,shape=[None,784])
 
 
-# In[186]:
+# In[21]:
 
 
 y_true = tf.placeholder(tf.float32,shape=[None,10])
@@ -290,13 +299,13 @@ y_true = tf.placeholder(tf.float32,shape=[None,10])
 
 # ### Layers
 
-# In[187]:
+# In[22]:
 
 
 x_image = tf.reshape(x,[-1,28,28,1])
 
 
-# In[188]:
+# In[23]:
 
 
 # Using a 6by6 filter here, used 5by5 in video, you can play around with the filter size
@@ -307,7 +316,7 @@ convo_1 = convolutional_layer(x_image,shape=[6,6,1,32])
 convo_1_pooling = max_pool_2by2(convo_1)
 
 
-# In[189]:
+# In[24]:
 
 
 # Using a 6by6 filter here, used 5by5 in video, you can play around with the filter size
@@ -317,7 +326,7 @@ convo_2 = convolutional_layer(convo_1_pooling,shape=[6,6,32,64])
 convo_2_pooling = max_pool_2by2(convo_2)
 
 
-# In[190]:
+# In[25]:
 
 
 # Why 7 by 7 image? Because we did 2 pooling layers, so (28/2)/2 = 7
@@ -326,7 +335,7 @@ convo_2_flat = tf.reshape(convo_2_pooling,[-1,7*7*64])
 full_layer_one = tf.nn.relu(normal_full_layer(convo_2_flat,1024))
 
 
-# In[191]:
+# In[26]:
 
 
 # NOTE THE PLACEHOLDER HERE!
@@ -334,7 +343,7 @@ hold_prob = tf.placeholder(tf.float32)
 full_one_dropout = tf.nn.dropout(full_layer_one,keep_prob=hold_prob)
 
 
-# In[192]:
+# In[27]:
 
 
 y_pred = normal_full_layer(full_one_dropout,10)
@@ -342,7 +351,7 @@ y_pred = normal_full_layer(full_one_dropout,10)
 
 # ### Loss Function
 
-# In[193]:
+# In[28]:
 
 
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true,logits=y_pred))
@@ -350,7 +359,7 @@ cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_
 
 # ### Optimizer
 
-# In[194]:
+# In[29]:
 
 
 optimizer = tf.train.AdamOptimizer(learning_rate=0.0001) # 0.0001
@@ -359,7 +368,7 @@ train = optimizer.minimize(cross_entropy)
 
 # ### Intialize Variables
 
-# In[195]:
+# In[30]:
 
 
 init = tf.global_variables_initializer()
@@ -367,7 +376,7 @@ init = tf.global_variables_initializer()
 
 # ### Session
 
-# In[196]:
+# In[31]:
 
 
 #duck smile car pencil star burger cookie rabbit moon icecream
@@ -384,7 +393,7 @@ print('test_x lenght {}'.format(len(test_x)))
 print('test_y lenght {}'.format(len(test_y)))
 
 
-# In[120]:
+# In[32]:
 
 
 # sih = SketchImageHelper()
@@ -399,73 +408,99 @@ print('test_y lenght {}'.format(len(test_y)))
 #     print(batch_y[0])
 
 
-# In[200]:
+# In[33]:
 
 
 sih = SketchImageHelper()
 sih.set_up_images()
 
-sess = tf.InteractiveSession()
+#sess = tf.InteractiveSession()
 
 
-# In[201]:
+# In[111]:
 
 
-steps = 100
+with tf.Session() as sess:
+    steps = 100
 
-print('INIT')
-sess.run(init)
+    print('INIT')
+    sess.run(init)
 
-for j in range(steps):
-    # print('.', end='')
-    batch_x , batch_y = sih.next_batch(500)
-    sess.run(train,feed_dict={x:batch_x,y_true:batch_y,hold_prob:0.5})
+    for j in range(steps):
+        # print('.', end='')
+        batch_x , batch_y = sih.next_batch(500)
+        sess.run(train,feed_dict={x:batch_x,y_true:batch_y,hold_prob:0.5})
 
-    # PRINT OUT A MESSAGE EVERY 100 STEPS
-    if j%50 == 0:
-        print('\n')
-        print('step {}'.format(j))
-        print('Accuracy is:')
-        # Test the Train Model
-        matches = tf.equal(tf.argmax(y_pred,1),tf.argmax(y_true,1))
+        # PRINT OUT A MESSAGE EVERY 100 STEPS
+        if j%50 == 0:
+            print('\n')
+            print('step {}'.format(j))
+            print('Accuracy is:')
+            # Test the Train Model
+            matches = tf.equal(tf.argmax(y_pred,1),tf.argmax(y_true,1))
 
-        acc = tf.reduce_mean(tf.cast(matches,tf.float32))
+            acc = tf.reduce_mean(tf.cast(matches,tf.float32))
 
-        print(sess.run(acc,feed_dict={x:test_x,y_true:test_y,hold_prob:1.0}))
-
-
-print('\n')
-print('FINAL Accuracy is:')
-print(sess.run(acc,feed_dict={x:test_x,y_true:test_y,hold_prob:1.0}))
-print('\n')
+            print(sess.run(acc,feed_dict={x:test_x,y_true:test_y,hold_prob:1.0}))
 
 
-# In[230]:
+    print('\n')
+    print('FINAL Accuracy is:')
+    print(sess.run(acc,feed_dict={x:test_x,y_true:test_y,hold_prob:1.0}))
+    print('\n')
+    
+    tf.train.Saver().save(sess, savefile)
 
 
-evalImage = (np.load('./SKETCH_data/duck.npy')[501] / 255)
-print(y_pred)
+# In[113]:
 
 
-# In[236]:
+classTypeId = 0 #values between 0..10
+imageNumber = 12 #value between 0..500
+with tf.Session() as sess:
+    # restore the model
+    tf.train.Saver().restore(sess, savefile)
+
+    myclass = sih.fileList[classTypeId]
+    evalImage = (np.load('./SKETCH_data/{}.npy'.format(myclass))[500 + imageNumber] / 255)
+
+    feed_dict = {x: np.reshape(evalImage,newshape=(1,784)), y_true: np.zeros((1, 10)), hold_prob : 0.5 }
+
+    classification = sess.run(tf.argmax(y_pred,1), feed_dict)
+
+    display(evalImage, myclass, sih.fileList[int(classification)])
+        
+        
 
 
-# make a prediction
-# y = tf.nn.softmax(tf.matmul(x,W) + b)
-evalImage = (np.load('./SKETCH_data/duck.npy')[501] / 255)
-
-feed_dict = {x: evalImage , y_true: np.zeros((1, 10)) }
-
-classification = sess.run(y_pred, feed_dict)
+# In[47]:
 
 
-# In[202]:
+def predict(self, classTypeId, imageNumber):
+   with self.tf.Session() as sess:
+       # restore the model
+       self.tf.train.Saver().restore(sess, self.savefile)
+
+       myclass = self.sih.fileList[classTypeId]
+       evalImage = (np.load('./SKETCH_data/{}.npy'.format(myclass))[500 + imageNumber] / 255)
+
+       feed_dict = {x: np.reshape(evalImage,newshape=(1,784)), y_true: np.zeros((1, 10)), hold_prob : 0.5 }
+
+       classification = sess.run(tf.argmax(y_pred,1), feed_dict)
+
+       self.display(evalImage, myclass, sih.fileList[int(classification)])
+   return classification
 
 
-display(evalImage, 0, 0)
+# In[48]:
 
 
-# In[203]:
+classTypeId = 0
+imageNumber = 1
+predict(classTypeId, imageNumber)
+
+
+# In[79]:
 
 
 print(classification)
