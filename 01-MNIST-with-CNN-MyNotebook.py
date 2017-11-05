@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 # ## Init variables
 
-# In[110]:
+# In[2]:
 
 
 savefile = "./STORED_model/my_trained_model.json"
@@ -27,7 +27,7 @@ savefile = "./STORED_model/my_trained_model.json"
 
 # Function to help intialize random weights for fully connected or convolutional layers, we leave the shape attribute as a parameter for this.
 
-# In[2]:
+# In[3]:
 
 
 def init_weights(shape):
@@ -37,7 +37,7 @@ def init_weights(shape):
 
 # Same as init_weights, but for the biases
 
-# In[3]:
+# In[4]:
 
 
 def init_bias(shape):
@@ -63,7 +63,7 @@ def init_bias(shape):
 #    vector.
 # 
 
-# In[4]:
+# In[5]:
 
 
 def conv2d(x, W):
@@ -83,7 +83,7 @@ def conv2d(x, W):
 #         window for each dimension of the input tensor.
 #       padding: A string, either `'VALID'` or `'SAME'`. 
 
-# In[5]:
+# In[6]:
 
 
 def max_pool_2by2(x):
@@ -93,7 +93,7 @@ def max_pool_2by2(x):
 
 # Using the conv2d function, we'll return an actual convolutional layer here that uses an ReLu activation.
 
-# In[6]:
+# In[7]:
 
 
 def convolutional_layer(input_x, shape):
@@ -104,7 +104,7 @@ def convolutional_layer(input_x, shape):
 
 # This is a normal fully connected layer
 
-# In[7]:
+# In[8]:
 
 
 def normal_full_layer(input_layer, size):
@@ -122,7 +122,7 @@ def normal_full_layer(input_layer, size):
 
 
 
-# In[8]:
+# In[9]:
 
 
 def one_hot_encode(pos):
@@ -134,7 +134,7 @@ def one_hot_encode(pos):
     return out
 
 
-# In[9]:
+# In[10]:
 
 
 #duck smile car pencil star burger cookie rabbit moon icecream
@@ -143,7 +143,7 @@ for i in range(len(fileList)):
     print('{} lenght {}'.format(fileList[i], len(np.load('./SKETCH_data/'+fileList[i]+'.npy'))))
 
 
-# In[10]:
+# In[11]:
 
 
 # images = []
@@ -154,7 +154,7 @@ for i in range(len(fileList)):
             
 
 
-# In[11]:
+# In[12]:
 
 
 # np.concatenate((images,np.array(np.load('./SKETCH_data/'+ fileList[1] +'.npy')[pos_begin:pos_end])), axis=0)
@@ -166,7 +166,7 @@ for i in range(len(fileList)):
 
 
 
-# In[112]:
+# In[13]:
 
 
 def display(img, label, predict):
@@ -177,7 +177,7 @@ def display(img, label, predict):
 # usage: display(test_x[0], 0, 0)
 
 
-# In[13]:
+# In[37]:
 
 
 class SketchImageHelper():
@@ -230,7 +230,7 @@ class SketchImageHelper():
         return x, y
 
 
-# In[14]:
+# In[15]:
 
 
 # sih = SketchImageHelper()
@@ -238,34 +238,34 @@ class SketchImageHelper():
 # lotx, loty = sih.next_batch(500)
 
 
-# In[15]:
+# In[16]:
 
 
 # print(len(sih.images[0]))
 # display(sih.images[0][51], 0, 0)
 
 
-# In[16]:
+# In[17]:
 
 
 # len(lotx)
 # display(lotx[4], 0, 0)
-
-
-# In[17]:
-
-
-# lotx, loty = sih.next_batch(500)
 
 
 # In[18]:
 
 
+# lotx, loty = sih.next_batch(500)
+
+
+# In[19]:
+
+
 # len(lotx)
 # display(lotx[4], 0, 0)
 
 
-# In[19]:
+# In[20]:
 
 
 # lotx, loty = sih.next_batch(500)
@@ -285,13 +285,13 @@ class SketchImageHelper():
 
 # ### Placeholders
 
-# In[20]:
+# In[21]:
 
 
 x = tf.placeholder(tf.float32,shape=[None,784])
 
 
-# In[21]:
+# In[22]:
 
 
 y_true = tf.placeholder(tf.float32,shape=[None,10])
@@ -299,13 +299,13 @@ y_true = tf.placeholder(tf.float32,shape=[None,10])
 
 # ### Layers
 
-# In[22]:
+# In[23]:
 
 
 x_image = tf.reshape(x,[-1,28,28,1])
 
 
-# In[23]:
+# In[24]:
 
 
 # Using a 6by6 filter here, used 5by5 in video, you can play around with the filter size
@@ -316,7 +316,7 @@ convo_1 = convolutional_layer(x_image,shape=[6,6,1,32])
 convo_1_pooling = max_pool_2by2(convo_1)
 
 
-# In[24]:
+# In[25]:
 
 
 # Using a 6by6 filter here, used 5by5 in video, you can play around with the filter size
@@ -326,7 +326,7 @@ convo_2 = convolutional_layer(convo_1_pooling,shape=[6,6,32,64])
 convo_2_pooling = max_pool_2by2(convo_2)
 
 
-# In[25]:
+# In[26]:
 
 
 # Why 7 by 7 image? Because we did 2 pooling layers, so (28/2)/2 = 7
@@ -335,7 +335,7 @@ convo_2_flat = tf.reshape(convo_2_pooling,[-1,7*7*64])
 full_layer_one = tf.nn.relu(normal_full_layer(convo_2_flat,1024))
 
 
-# In[26]:
+# In[27]:
 
 
 # NOTE THE PLACEHOLDER HERE!
@@ -343,7 +343,7 @@ hold_prob = tf.placeholder(tf.float32)
 full_one_dropout = tf.nn.dropout(full_layer_one,keep_prob=hold_prob)
 
 
-# In[27]:
+# In[28]:
 
 
 y_pred = normal_full_layer(full_one_dropout,10)
@@ -351,7 +351,7 @@ y_pred = normal_full_layer(full_one_dropout,10)
 
 # ### Loss Function
 
-# In[28]:
+# In[29]:
 
 
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true,logits=y_pred))
@@ -359,7 +359,7 @@ cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_
 
 # ### Optimizer
 
-# In[29]:
+# In[30]:
 
 
 optimizer = tf.train.AdamOptimizer(learning_rate=0.0001) # 0.0001
@@ -368,7 +368,7 @@ train = optimizer.minimize(cross_entropy)
 
 # ### Intialize Variables
 
-# In[30]:
+# In[31]:
 
 
 init = tf.global_variables_initializer()
@@ -376,7 +376,7 @@ init = tf.global_variables_initializer()
 
 # ### Session
 
-# In[31]:
+# In[32]:
 
 
 #duck smile car pencil star burger cookie rabbit moon icecream
@@ -393,7 +393,7 @@ print('test_x lenght {}'.format(len(test_x)))
 print('test_y lenght {}'.format(len(test_y)))
 
 
-# In[32]:
+# In[33]:
 
 
 # sih = SketchImageHelper()
@@ -408,7 +408,7 @@ print('test_y lenght {}'.format(len(test_y)))
 #     print(batch_y[0])
 
 
-# In[33]:
+# In[34]:
 
 
 sih = SketchImageHelper()
@@ -417,11 +417,11 @@ sih.set_up_images()
 #sess = tf.InteractiveSession()
 
 
-# In[111]:
+# In[38]:
 
 
 with tf.Session() as sess:
-    steps = 100
+    steps = 1850
 
     print('INIT')
     sess.run(init)
